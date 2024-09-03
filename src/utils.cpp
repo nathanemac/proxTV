@@ -12,6 +12,11 @@
 #include <limits.h>
 #include "utils.h"
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
     Returns the sign of a number.
 
@@ -245,3 +250,7 @@ int compareDoublesReversed(const void *v1, const void *v2){
     else if(d1 > d2) return -1;
     else return 0;
 }
+
+#ifdef __cplusplus
+}
+#endif

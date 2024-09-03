@@ -12,6 +12,10 @@
 #include <limits.h>
 #include "LPopt.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*** Internal functions headers ***/
 double PN_LPpGap(double *x, double *y, double *diff, int n, double q, double lambda, double norm);
 
@@ -1057,3 +1061,7 @@ void solveLinearLP(double *z, int n, double p, double lambda, double *s) {
     for ( i = 0 ; i < n ; i++ )
         s[i] = s[i] / sNorm * lambda;
 }
+
+#ifdef __cplusplus
+}
+#endif
