@@ -37,11 +37,10 @@
 /* Minimum stepsize */
 #define MIN_STEP_PNLP 1e-10
 
+/*** Module functions ***/
 #ifdef __cplusplus
 extern "C" {
 #endif
-/*** Module functions ***/
-
 /* Lp norm value */
 double LPnorm(double *x, int n, double p);
 
@@ -61,4 +60,5 @@ void solveLinearLP(double *z, int n, double p, double lambda, double *s);
 #ifdef __cplusplus
 }
 #endif
+
 #endif

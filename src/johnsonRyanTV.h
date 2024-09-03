@@ -1,7 +1,9 @@
+#ifndef JOHNSONRYANTV_H
+#define JOHNSONRYANTV_H
+
 #include <stdlib.h>
 
 #ifdef __cplusplus
-using namespace std;
 extern "C" {
 #endif
 
@@ -12,3 +14,6 @@ void dp(int n, double *y, double lam, double *beta);
 #ifdef __cplusplus
 }
 #endif
+
+#endif
+

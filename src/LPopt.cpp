@@ -733,7 +733,7 @@ int PN_LPp(double *y,double lambda,double *x,double *info,int n,double p,Workspa
 
     The proximity problem is solved to a default level of accuracy, as given by STOP_GAP_PNLP.
 */
-int PN_LPp(double *y,double lambda,double *x,double *info,int n,double p,Workspace *ws,int positive) {
+int PN_LPp_v2(double *y,double lambda,double *x,double *info,int n,double p,Workspace *ws,int positive) {
     return PN_LPp(y, lambda, x, info, n, p, ws, positive, STOP_GAP_PNLP);
 }
 
@@ -952,7 +952,7 @@ int LPp_project(double *y,double lambda,double *x,double *info,int n,double p,Wo
         #endif
 
     /* Invoke Lp prox solver on dual norm */
-    if(!PN_LPp(y,lambda,x,info,n,q,ws,1))
+    if(!PN_LPp(y,lambda,x,info,n,q,ws,1, STOP_GAP_PNLP))
         {CANCEL("error in internal Lp prox solver",info)}
 
     /* Apply Moreau's decomposition to recover primal problem solution */

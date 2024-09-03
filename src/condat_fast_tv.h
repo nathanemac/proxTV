@@ -62,6 +62,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
 This function implements the 1D total variation denoising
 algorithm described in the paper referenced above.
@@ -72,10 +76,6 @@ yields output[k]=input[k] for all k.
 If width<=0, nothing is done.
 */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 void TV1D_denoise(double* input, double* output, const int width, const double lambda);
 void TV1D_denoise_tautstring(double* input, double* output, int width, const double lambda);
 
@@ -84,6 +84,7 @@ void TV1D_denoise_tautstring(double* input, double* output, int width, const dou
 #endif
 
 #endif
+
 
 
 
