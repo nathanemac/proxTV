@@ -20,6 +20,10 @@
 
 #define LAPACK_ILP64
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*  PD_TV
 
     Given a reference multidimensional signal y and a series of penalty terms P(x,lambda,d,p), solves the generalized Total Variation
@@ -802,3 +806,6 @@ int Yang3_TV(size_t M, size_t N, size_t O, double*Y, double lambda, double*X, in
     #undef CANCEL
 }
 
+#ifdef __cplusplus
+}
+#endif
