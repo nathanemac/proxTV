@@ -4,6 +4,9 @@
     @author Álvaro Barbero Jiménez
     @author Suvrit Sra
 */
+#ifndef _TVOPT_H
+#define _TVOPT_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,9 +20,6 @@
 #include "utils.h"
 #include "condat_fast_tv.h"
 #include "johnsonRyanTV.h"
-
-#ifndef _TVOPT_H
-#define _TVOPT_H
 
 /* TV-L1 solvers */
 
@@ -84,8 +84,9 @@
 /* Maximum number of iterations in Yang's method */
 #define MAX_ITERS_YANG 35
 
-
+#ifdef __cplusplus
 extern "C" {
+#endif
 
 /*** Function headers ***/
 
@@ -137,7 +138,9 @@ int Yang3_TV(size_t M, size_t N, size_t O, double*Y, double lambda, double*X, in
 int PD_TV(double *y,double *lambdas,double *norms,double *dims,double *x,double *info,int *ns,int nds,int npen,int ncores,int maxIters);
 int PDR_TV(double *y,double *lambdas,double *norms,double *dims,double *x,double *info,int *ns,int nds,int npen,int ncores,int maxIters);
 
-
-}  // extern "C"
+#ifdef __cplusplus
+}
+#endif
 
 #endif
+

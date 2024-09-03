@@ -18,13 +18,26 @@
 /* Mex and LAPACK includes */
 #ifdef NOMATLAB
 #undef lapack_int
-#define lapack_int              int
+#define lapack_int int
+
+#ifdef __cplusplus
 extern "C" {
-    void dpttrs_(lapack_int* n, lapack_int* nrhs, const double* d, const double* e, double* b, lapack_int* ldb,
-                 lapack_int *info );
-    void dpttrf_( lapack_int* n, double* d, double* e, lapack_int *info );
+#endif
+
+    void dpttrs_(lapack_int* n, lapack_int* nrhs, const double* d, const double* e, double* b, lapack_int* ldb, lapack_int *info);
+    void dpttrf_(lapack_int* n, double* d, double* e, lapack_int *info);
+
+#ifdef __cplusplus
 }
+#endif
+
+/* Utilisation de inline conditionnée à la compilation C ou C++ */
+#ifdef __cplusplus
 inline double mxGetInf() { return INFINITY; }
+#else
+static inline double mxGetInf() { return INFINITY; } // Utilisation correcte de inline en C
+#endif
+
 #else
 #include "mex.h"
 #include "lapack.h"
@@ -62,9 +75,9 @@ inline double mxGetInf() { return INFINITY; }
 
 /* Comparison tolerance */
 #define EPSILON 1e-10
-#define IS_ZERO(x) (x < EPSILON & x > -EPSILON)
-#define IS_POSITIVE(x) (x > EPSILON)
-#define IS_NEGATIVE(x) (x < -EPSILON)
+#define IS_ZERO(x) ((x) < EPSILON && (x) > -EPSILON)
+#define IS_POSITIVE(x) ((x) > EPSILON)
+#define IS_NEGATIVE(x) ((x) < -EPSILON)
 
 /* Return Codes */
 #define RC_OK 0 // Solution found at the specified error level
