@@ -15,6 +15,10 @@
 #include <float.h>
 #include <limits.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Mex and LAPACK includes */
 #ifdef NOMATLAB
 #undef lapack_int
@@ -30,6 +34,10 @@ inline double mxGetInf() { return INFINITY; }
 #include "lapack.h"
 #include "matrix.h"
 #define lapack_int ptrdiff_t
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 /* Uncomment to print debug messages to a debug file */
