@@ -1445,6 +1445,7 @@ int GPFW_TVp(double *y,double lambda,double *x,double *info,int n,double p,Works
     }
 
     /* Free resources and return */
+    wsinner = NULL; /* ADDED Sept 20, 2024. wsinner is already freed in PN_LP at line 1273 then not reused. If freed twice, this causes double-free bug. */
     FREE
     return 1;
 
