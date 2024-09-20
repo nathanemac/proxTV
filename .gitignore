@@ -14,3 +14,4 @@ prox_tv.egg-info
 .coverage
 .idea
 wheelhouse
+.DS_Store
