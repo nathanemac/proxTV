@@ -14,9 +14,9 @@ prox_tv.egg-info
 .coverage
 .idea
 wheelhouse
-.DS_Store
-.DS_Store
 *.so
 *.dSYM/
 main
-main.cpp
+main.cpp   
+*.o            
+*.DS_Store
