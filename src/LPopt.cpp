@@ -289,38 +289,51 @@ int PN_LPp(double *y,double lambda,double *x,double *info,int n,double p,Workspa
     if(!g || !d || !xnorm || !auxv || !inactive)
         {CANCEL("out of memory",info)}
 
-    /* As initial points, use an approximation for the closed-form solution */
-
-    /* Find close-form solution for TV-L2 */
-    PN_LP2(y , lambda , x, NULL ,n);
-    /* Measure gap of this solution in terms of TV-Lp norm */
+    /* ADDED NOV 15 BY Nathan Allaire - we need x=0 as a first point, not an approximation from another norm. */
+    memset(x, 0, sizeof(double)*n); // Fill x with zeros
     for ( i = 0 ; i < n ; i++ )
         auxv[i] = x[i] - y[i];
     nx = LPnorm( x, n, p );
-    stop = PN_LPpGap(x, y, auxv, n, q, lambda, nx);
+    stop = PN_LPpGap(x, y, auxv, n, q, lambda, nx); // Compute gap of this solution in terms of TV-Lp norm
 
-    /* Find close-form solution for TV-L1 or TV-Linf, whichever is closer in norm value */
-    if ( p < 2 )
-        PN_LP1(y , lambda , xnorm, NULL ,n);
-    else
-        PN_LPinf(y , lambda , xnorm, NULL ,n, ws);
-    /* Measure gap of this solution in terms of TV-Lp norm */
-    for ( i = 0 ; i < n ; i++ )
-        auxv[i] = xnorm[i] - y[i];
-    nx = LPnorm( xnorm, n, p );
-    stop2 = PN_LPpGap(xnorm, y, auxv, n, q, lambda, nx);
 
-    #ifdef DEBUG
-        fprintf(DEBUG_FILE,"Starting candidates: p2 = %lf, p%s = %lf\n", stop, p<2 ? "1" : "inf", stop2);
-    #endif
+    // ADDED NOV 15 - BEGINNING OF COMMENTING LINES
 
-    /* Use as starting point the closed-form solution with smaller dual gap */
-    if ( stop2 < stop ) {
-        /* Copy starting point */
-        memcpy(x, xnorm, sizeof(double)*n);
-        stop = stop2;
-    }
+    // /* As initial points, use an approximation for the closed-form solution */
+
+    // /* Find close-form solution for TV-L2 */
+    // PN_LP2(y , lambda , x, NULL ,n);
+    // /* Measure gap of this solution in terms of TV-Lp norm */
+    // for ( i = 0 ; i < n ; i++ )
+    //     auxv[i] = x[i] - y[i];
+    // nx = LPnorm( x, n, p );
+    // stop = PN_LPpGap(x, y, auxv, n, q, lambda, nx);
+
+    // /* Find close-form solution for TV-L1 or TV-Linf, whichever is closer in norm value */
+    // if ( p < 2 )
+    //     PN_LP1(y , lambda , xnorm, NULL ,n);
+    // else
+    //     PN_LPinf(y , lambda , xnorm, NULL ,n, ws);
+    // /* Measure gap of this solution in terms of TV-Lp norm */
+    // for ( i = 0 ; i < n ; i++ )
+    //     auxv[i] = xnorm[i] - y[i];
+    // nx = LPnorm( xnorm, n, p );
+    // stop2 = PN_LPpGap(xnorm, y, auxv, n, q, lambda, nx);
+
+    // #ifdef DEBUG
+    //     fprintf(DEBUG_FILE,"Starting candidates: p2 = %lf, p%s = %lf\n", stop, p<2 ? "1" : "inf", stop2);
+    // #endif
+
+    // /* Use as starting point the closed-form solution with smaller dual gap */
+    // if ( stop2 < stop ) {
+    //     /* Copy starting point */
+    //     memcpy(x, xnorm, sizeof(double)*n);
+    //     stop = stop2;
+    // }
+
+    // ADDED NOV 15 - END OF COMMENTING LINES
     /* If dual gap is good enough, we are finished */
+
     if ( stop < objGap ) {
         FREE
         if (info) {
