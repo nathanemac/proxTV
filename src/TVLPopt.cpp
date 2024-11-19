@@ -12,6 +12,7 @@
 #include <limits.h>
 #include <wchar.h>
 #include <time.h>
+#include <iostream>
 #include "TVopt.h"
 #include "TVmacros.h"
 
@@ -1107,13 +1108,16 @@ int FW_TVp(double *y,double lambda,double *x,double *info,int n,double p,Workspa
         - info: array in which to store optimizer information.
         - n: length of array y (and x).
         - p: degree of the TV norm.
+        - objGapTVp: dual gap required by user for the 1D-TVp.
 */
-int GPFW_TVp(double *y,double lambda,double *x,double *info,int n,double p,Workspace *ws) {
+int GPFW_TVp(double *y,double lambda,double *x,double *info,int n,double p,Workspace *ws, double objGapTVp){ {
     double *w=NULL,*aux=NULL,*aux2=NULL,*g=NULL;
     double q,tmp,stop,dual,bestdual,lambdaMax,num,den,step;
     int iter,stuck,nn,i,lambdaStep,cycle;
     Workspace *wsinner=NULL;
     lapack_int one=1,rc,nnp;
+
+    /* ADDED NOV 15 BY Nathan Allaire - argument objGapTVp in GPFW_TVp to choose dualGap and modify everything accordingly.*/
 
     /* Problem constants */
     #define Linv 0.25 // Inverse of Lipschitz constant
@@ -1235,7 +1239,7 @@ int GPFW_TVp(double *y,double lambda,double *x,double *info,int n,double p,Works
         - Maximum number of iterations reached.
         - Dual gap small.
         - Dual gap not improving for a number of iterations. */
-    for(iter=1 ; iter < MAX_ITERS_TVLPGPFW && stop > STOP_TVLP && stuck < MAX_NOIMP_TVLP_GPFW ; iter++, cycle++){
+    for(iter=1 ; iter < MAX_ITERS_TVLPGPFW && stop > objGapTVp && stuck < MAX_NOIMP_TVLP_GPFW ; iter++, cycle++){
         #ifdef DEBUG
             fprintf(DEBUG_FILE,"(GPFW_TVp) Iter %d, w=[ ",iter);
             for(i=0;i<nn && i<DEBUG_N;i++) fprintf(DEBUG_FILE,"%g ",w[i]);
@@ -1392,7 +1396,7 @@ int GPFW_TVp(double *y,double lambda,double *x,double *info,int n,double p,Works
             PRIMAL2GRAD(x,g,i)
 
             /* If surrogate gap is met, check whether the same applies for the real gap */
-            if ( stop <= STOP_TVLP ) {
+            if ( stop <= objGapTVp ) {
                 /* Compute real dual gap */
                 GRAD2GAP(w,g,stop,lambda,p,nn,i)
             }
@@ -1454,4 +1458,4 @@ int GPFW_TVp(double *y,double lambda,double *x,double *info,int n,double p,Works
     #undef CANCEL
     #undef GRAD2GAP
 }
-
+}
