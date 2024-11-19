@@ -15,3 +15,8 @@ prox_tv.egg-info
 .idea
 wheelhouse
 .DS_Store
+.DS_Store
+*.so
+*.dSYM/
+main
+main.cpp
