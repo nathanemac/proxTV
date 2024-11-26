@@ -91,7 +91,7 @@ extern "C" {
 /*** Function headers ***/
 
 /* General solvers */
-int TV(double *y,double lambda,double *x,double *info,int n,double p,Workspace *ws, double objGapTVp = STOP_TVLP);
+int TV(double *y,double lambda,double *x,double *info,int n,double p,Workspace *ws, void* ctx_ptr, int (*callback)(const double* s_ptr, size_t s_length, double delta_k, void* ctx_ptr), double objGapTVp = STOP_TVLP);
 
 /* TV-L1 solvers */
 int PN_TV1(double *y,double lambda,double *x,double *info,int n,double sigma,Workspace *ws);
@@ -121,7 +121,7 @@ int GP_TVp(double *y,double lambda,double *x,double *info,int n,double p,Workspa
 int OGP_TVp(double *y,double lambda,double *x,double *info,int n,double p,Workspace *ws);
 int FISTA_TVp(double *y,double lambda,double *x,double *info,int n,double p,Workspace *ws);
 int FW_TVp(double *y,double lambda,double *x,double *info,int n,double p,Workspace *ws);
-int GPFW_TVp(double *y,double lambda,double *x,double *info,int n,double p,Workspace *ws, double objGapTVp = STOP_TVLP);
+int GPFW_TVp(double *y,double lambda,double *x,double *info,int n,double p,Workspace *ws, void* ctx_ptr, int (*callback)(const double* s_ptr, size_t s_length, double delta_k, void* ctx_ptr), double objGapTVp = STOP_TVLP);
 
 /* 2-dimensional TV solvers */
 int PD2_TV(double *y,double *lambdas,double *norms,double *dims,double *x,double *info,int *ns,int nds,int npen,int ncores,int maxIters);
