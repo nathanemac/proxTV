@@ -203,7 +203,7 @@ int PD2_TV(double *y,double *lambdas,double *norms,double *dims,double *x,double
 
                 /* Apply 1-dimensional solver */
                 resetWorkspace(wsi);
-                TV(wsi->in, lambdas[0], wsi->out, NULL, ns[d], norms[0], wsi);
+                TV(wsi->in, lambdas[0], wsi->out, NULL, ns[d], norms[0], wsi, NULL, NULL);
 
                 /* Plug solution back */
                 for(k=0,idx2=0 ; k<ns[d] ; k++,idx2+=incs[d])
@@ -253,7 +253,7 @@ int PD2_TV(double *y,double *lambdas,double *norms,double *dims,double *x,double
 
                     /* Apply 1-dimensional solver */
                     resetWorkspace(wsi);
-                    TV(wsi->in, lambdas[1], wsi->out, NULL, ns[d], norms[1], wsi);
+                    TV(wsi->in, lambdas[1], wsi->out, NULL, ns[d], norms[1], wsi, NULL, NULL);
 
                     /* Plug solution back */
                     for(k=0,idx2=0 ; k<ns[d] ; k++,idx2+=incs[d])
@@ -544,7 +544,7 @@ void DR_proxDiff_2D(size_t n, double* input, double* output, double W, double no
     int i;
 
     // Compute proximity
-    TV(input, W, output, NULL, n , norm, NULL);
+    TV(input, W, output, NULL, n , norm, NULL, NULL, NULL);
     // Return differences between input and proximity output
     for (i=0; i < n; i++)
       output[i] = input[i] - output[i];
@@ -842,7 +842,7 @@ int Yang2_TV(size_t M, size_t N, double*Y, double lambda, double*X, int maxit, d
             for ( j = 0 ; j < N ; j++ )
                 ws->in[j] = -1. / rho * U1[j*M+i] + X[j*M+i];
             resetWorkspace(ws);
-            TV(ws->in, lambda/rho, ws->out, NULL, N, 1, ws);
+            TV(ws->in, lambda/rho, ws->out, NULL, N, 1, ws, NULL, NULL);
             // Recover data
             for ( j = 0 ; j < N ; j++ )
                 Z1[j*M+i] = ws->out[j];
@@ -853,7 +853,7 @@ int Yang2_TV(size_t M, size_t N, double*Y, double lambda, double*X, int maxit, d
             // Copy column data to workspace
             for ( j = 0 ; j < M ; j++ )
                 ws->in[j] = -1. / rho * U2[i*M+j] + X[i*M+j];
-            TV(ws->in, lambda/rho, ws->out, NULL, M, 1, ws);
+            TV(ws->in, lambda/rho, ws->out, NULL, M, 1, ws, NULL, NULL);
             // Recover data
             memcpy(Z2+i*M, ws->out, sizeof(double)*M);
         }
@@ -970,7 +970,7 @@ int Kolmogorov2_TV(size_t M, size_t N, double*Y, double lambda, double*X, int ma
         // Dual prox for cols
         for ( j = 0 ; j < NM ; j+=M ) {
             // Normal prox
-            TV(TMP+j, lambda/sigma, U+j, NULL, M, 1, NULL);
+            TV(TMP+j, lambda/sigma, U+j, NULL, M, 1, NULL, NULL, NULL);
             // Moreau's identity
             for ( i = 0 ; i < M ; i++ )
                 (U+j)[i] = sigma*((TMP+j)[i] - (U+j)[i]);
@@ -992,7 +992,7 @@ int Kolmogorov2_TV(size_t M, size_t N, double*Y, double lambda, double*X, int ma
             for ( j = 0 ; j < N ; j++ )
                 row[j] = TMP[j*M+i];
             // Prox operator
-            TV(row, lambda/(1.+1./tau), rowout, NULL, N, 1, NULL);
+            TV(row, lambda/(1.+1./tau), rowout, NULL, N, 1, NULL, NULL, NULL);
             // Recover output
             for ( j = 0 ; j < N ; j++ )
                 X[j*M+i] = rowout[j];

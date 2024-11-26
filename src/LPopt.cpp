@@ -212,13 +212,21 @@ int PN_LPinf(double *y,double lambda,double *x,double *info,int n,Workspace *ws)
         - ws: workspace of allocated memory to use. If NULL, any needed memory is locally managed.
         - positive: 1 if all inputs y >= 0, 0 else.
         - objGap: desired quality of the solution in terms of duality gap.
+        - ctx_ptr: pointer to context data to be passed to the callback function.
+        - callback: callback function to be called at each iteration.
 */
-int PN_LPp(double *y,double lambda,double *x,double *info,int n,double p,Workspace *ws,int positive,double objGap){
+int PN_LPp(double *y,double lambda,double *x,double *info,int n,double p,Workspace *ws,int positive,double objGap, void* ctx_ptr, int (*callback)(const double* s_ptr, size_t s_length, double delta_k, void* ctx_ptr)){
     double *g=NULL,*d=NULL,*xnorm=NULL,*auxv=NULL;
     double stop,stop2,q,nx,f,fupdate,aux,c,den,xp1vGrad,gRd,delta,prevDelta,improve,rhs,grad0,gap,epsilon;
     int *inactive=NULL,*signs=NULL;
     int i,j,iters,recomp,found,nI;
     short updateKind;
+
+    /* If ctx_ptr and callback are NULL, return an error with message "Error: PN_LPp can only be use with valid context pointer and callback."*/
+    if (ctx_ptr == NULL || callback == NULL) {
+        printf("Error: PN_LPp can only be use with valid context pointer and callback.\n");
+        return 0;
+    }
 
     #define CHECK_INACTIVE(x,g,inactive,nI,i) \
         for(i=nI=0 ; i<n ; i++) \
@@ -246,6 +254,10 @@ int PN_LPp(double *y,double lambda,double *x,double *info,int n,double p,Workspa
 
     /* Compute dual norm q */
     q = 1/(1-1/p);
+
+    /* initialize output for callback */
+    int callback_result = 0;
+
 
     /* Special case where the solution is the trivial x = 0 */
     /* This is bound to happen if ||y||_q <= lambda */
@@ -295,7 +307,6 @@ int PN_LPp(double *y,double lambda,double *x,double *info,int n,double p,Workspa
         auxv[i] = x[i] - y[i];
     nx = LPnorm( x, n, p );
     stop = PN_LPpGap(x, y, auxv, n, q, lambda, nx); // Compute gap of this solution in terms of TV-Lp norm
-
 
     // ADDED NOV 15 - BEGINNING OF COMMENTING LINES
 
@@ -372,7 +383,6 @@ int PN_LPp(double *y,double lambda,double *x,double *info,int n,double p,Workspa
     for ( i = 0 ; i < n ; i++ )
         if ( x[i] < epsilon )
             x[i] = epsilon;
-
     /* Initial value of the point norm */
     nx = LPnorm(x,n,p);
     /* Compute differences x - y */
@@ -381,7 +391,7 @@ int PN_LPp(double *y,double lambda,double *x,double *info,int n,double p,Workspa
 
     /* Projected Newton loop */
     stop = gap = DBL_MAX; iters = 0;
-    for(iters=0 ; stop > STOP_PNLP && iters < MAX_ITERS_PNLP && gap > objGap ; iters++){
+    for(iters=0 ; stop > STOP_PNLP && iters < MAX_ITERS_PNLP && callback_result == 0 ; iters++){
         #ifdef DEBUG
             fprintf(DEBUG_FILE,"Iter %d, x=[ ",iters);
             for(i=0;i<n && i<DEBUG_N;i++) fprintf(DEBUG_FILE,"%g ",x[i]);
@@ -676,6 +686,11 @@ int PN_LPp(double *y,double lambda,double *x,double *info,int n,double p,Workspa
 
         /* Compute dual gap */
         gap = PN_LPpGap(x, y, auxv, n, q, lambda, nx);
+
+        /* ADDED NOV 26 NATHAN ALLAIRE */
+        /* Call the callback function from Julia */
+        callback_result = callback(x, n, gap, ctx_ptr);
+
         #ifdef DEBUG
             fprintf(DEBUG_FILE,"Iter %d, stop=%lg, gap=%lg\n",iters,stop,gap);
         #endif
@@ -747,7 +762,7 @@ int PN_LPp(double *y,double lambda,double *x,double *info,int n,double p,Workspa
     The proximity problem is solved to a default level of accuracy, as given by STOP_GAP_PNLP.
 */
 int PN_LPp_v2(double *y,double lambda,double *x,double *info,int n,double p,Workspace *ws,int positive) {
-    return PN_LPp(y, lambda, x, info, n, p, ws, positive, STOP_GAP_PNLP);
+    return PN_LPp(y, lambda, x, info, n, p, ws, positive, STOP_GAP_PNLP, NULL, NULL);
 }
 
 /** PN_LPpGap
@@ -965,7 +980,7 @@ int LPp_project(double *y,double lambda,double *x,double *info,int n,double p,Wo
         #endif
 
     /* Invoke Lp prox solver on dual norm */
-    if(!PN_LPp(y,lambda,x,info,n,q,ws,1, STOP_GAP_PNLP))
+    if(!PN_LPp(y,lambda,x,info,n,q,ws,1, STOP_GAP_PNLP, NULL, NULL))
         {CANCEL("error in internal Lp prox solver",info)}
 
     /* Apply Moreau's decomposition to recover primal problem solution */

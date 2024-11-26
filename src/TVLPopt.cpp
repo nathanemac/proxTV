@@ -193,7 +193,7 @@ int GP_TVp(double *y,double lambda,double *x,double *info,int n,double p,Workspa
 
         /* Projection onto lp-ball */
         resetWorkspace(wsinner);
-        if(!PN_LPp(aux,lambdaCurrent,w,info,nn,p,wsinner,0,OBJGAP_LPPROX_TVLP))
+        if(!PN_LPp(aux,lambdaCurrent,w,info,nn,p,wsinner,0,OBJGAP_LPPROX_TVLP, NULL, NULL))
             {CANCEL("error when invoking Lp ball projection subroutine",info)}
 
         for(i=0;i<nn;i++) w[i] = aux[i] - w[i];
@@ -477,7 +477,7 @@ int OGP_TVp(double *y,double lambda,double *x,double *info,int n,double p,Worksp
 
         /* Projection onto lp-ball */
         resetWorkspace(wsinner);
-        if(!PN_LPp(aux,lambdaCurrent,z,info,nn,p,wsinner,0,OBJGAP_LPPROX_TVLP))
+        if(!PN_LPp(aux,lambdaCurrent,z,info,nn,p,wsinner,0,OBJGAP_LPPROX_TVLP, NULL, NULL))
             {CANCEL("error when invoking Lp ball projection subroutine",info)}
         for(i=0;i<nn;i++) z[i] = aux[i] - z[i];
 
@@ -766,7 +766,7 @@ int FISTA_TVp(double *y,double lambda,double *x,double *info,int n,double p,Work
 
         /* Projection onto lq-ball */
         resetWorkspace(wsinner);
-        if(!PN_LPp(aux,lambdaCurrent,w,info,nn,p,wsinner,0,OBJGAP_LPPROX_TVLP))
+        if(!PN_LPp(aux,lambdaCurrent,w,info,nn,p,wsinner,0,OBJGAP_LPPROX_TVLP, NULL, NULL))
             {CANCEL("error when invoking Lp ball projection subroutine",info)}
         for(i=0;i<nn;i++) w[i] = aux[i] - w[i];
 
@@ -1110,7 +1110,7 @@ int FW_TVp(double *y,double lambda,double *x,double *info,int n,double p,Workspa
         - p: degree of the TV norm.
         - objGapTVp: dual gap required by user for the 1D-TVp.
 */
-int GPFW_TVp(double *y,double lambda,double *x,double *info,int n,double p,Workspace *ws, double objGapTVp){ {
+int GPFW_TVp(double *y,double lambda,double *x,double *info,int n,double p,Workspace *ws, void* ctx_ptr, int (*callback)(const double* s_ptr, size_t s_length, double delta_k, void* ctx_ptr), double objGapTVp){ {
     double *w=NULL,*aux=NULL,*aux2=NULL,*g=NULL;
     double q,tmp,stop,dual,bestdual,lambdaMax,num,den,step;
     int iter,stuck,nn,i,lambdaStep,cycle;
@@ -1233,13 +1233,16 @@ int GPFW_TVp(double *y,double lambda,double *x,double *info,int n,double p,Works
     /* Initial gradient evaluation */
     PRIMAL2GRAD(x,g,i)
 
+    /* initialize output for callback */
+    int callback_result = 0;
+
     /* Start Gradient Projections iterations */
     stop = DBL_MAX; bestdual = DBL_MAX; stuck = 0; cycle = 0;
     /* Stop when one these conditions are met:
         - Maximum number of iterations reached.
         - Dual gap small.
         - Dual gap not improving for a number of iterations. */
-    for(iter=1 ; iter < MAX_ITERS_TVLPGPFW && stop > objGapTVp && stuck < MAX_NOIMP_TVLP_GPFW ; iter++, cycle++){
+    for(iter=1 ; iter < MAX_ITERS_TVLPGPFW && callback_result == 0 && stuck < MAX_NOIMP_TVLP_GPFW ; iter++, cycle++){
         #ifdef DEBUG
             fprintf(DEBUG_FILE,"(GPFW_TVp) Iter %d, w=[ ",iter);
             for(i=0;i<nn && i<DEBUG_N;i++) fprintf(DEBUG_FILE,"%g ",w[i]);
@@ -1270,7 +1273,7 @@ int GPFW_TVp(double *y,double lambda,double *x,double *info,int n,double p,Works
 
             /* Projection onto lp-ball */
             resetWorkspace(wsinner);
-            if(!PN_LPp(aux2,lambda,aux,info,nn,p,wsinner,0,OBJGAP_LPPROX_TVLP))
+            if(!PN_LPp(aux2,lambda,aux,info,nn,p,wsinner,0,OBJGAP_LPPROX_TVLP, ctx_ptr, callback))
                 {CANCEL("error when invoking Lp ball projection subroutine",info)}
             for(i=0;i<nn;i++) aux[i] = aux2[i] - aux[i];
 
@@ -1415,6 +1418,11 @@ int GPFW_TVp(double *y,double lambda,double *x,double *info,int n,double p,Works
 
         if ( dual < bestdual )
             bestdual = dual;
+
+
+        /* ADDED NOV 26 NATHAN ALLAIRE */
+        /* Call the callback function from Julia */
+        callback_result = callback(x, n, stop, ctx_ptr);
 
         #ifdef DEBUG
             fprintf(DEBUG_FILE,"(GPFW_TVp) iter %d gap=%lf, dual=%lf, bestdual=%lf\n",iter,stop,dual,bestdual); fflush(DEBUG_FILE); fflush(stdout);
