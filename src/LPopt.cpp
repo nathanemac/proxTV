@@ -222,9 +222,9 @@ int PN_LPp(double *y,double lambda,double *x,double *info,int n,double p,Workspa
     int i,j,iters,recomp,found,nI;
     short updateKind;
 
-    /* If ctx_ptr and callback are NULL, return an error with message "Error: PN_LPp can only be use with valid context pointer and callback."*/
+    /* If ctx_ptr or callback are NULL, return an error with message "Error: PN_LPp can only be used with valid context pointer and callback."*/
     if (ctx_ptr == NULL || callback == NULL) {
-        printf("Error: PN_LPp can only be use with valid context pointer and callback.\n");
+        printf("Error: PN_LPp can only be used with valid context pointer and callback.\n");
         return 0;
     }
 
