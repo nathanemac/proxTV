@@ -1117,6 +1117,10 @@ int GPFW_TVp(double *y,double lambda,double *x,double *info,int n,double p,Works
     Workspace *wsinner=NULL;
     lapack_int one=1,rc,nnp;
 
+    printf("Callback pointer in GPFW_TVp: %p\n", callback);
+    printf("Context pointer (ctx_ptr) in GPFW_TVp: %p\n", ctx_ptr);
+
+
     /* ADDED NOV 15 BY Nathan Allaire - argument objGapTVp in GPFW_TVp to choose dualGap and modify everything accordingly.*/
 
     /* Problem constants */
@@ -1272,6 +1276,8 @@ int GPFW_TVp(double *y,double lambda,double *x,double *info,int n,double p,Works
             #endif
 
             /* Projection onto lp-ball */
+            printf("GPFW_TVp - Before calling PN_LPp:\n");
+            printf("callback = %p, ctx_ptr = %p\n", (void*)callback, ctx_ptr);
             resetWorkspace(wsinner);
             if(!PN_LPp(aux2,lambda,aux,info,nn,p,wsinner,0,OBJGAP_LPPROX_TVLP, ctx_ptr, callback))
                 {CANCEL("error when invoking Lp ball projection subroutine",info)}

@@ -222,11 +222,8 @@ int PN_LPp(double *y,double lambda,double *x,double *info,int n,double p,Workspa
     int i,j,iters,recomp,found,nI;
     short updateKind;
 
-    /* If ctx_ptr or callback are NULL, return an error with message "Error: PN_LPp can only be used with valid context pointer and callback."*/
-    if (ctx_ptr == NULL || callback == NULL) {
-        printf("Error: PN_LPp can only be used with valid context pointer and callback.\n");
-        return 0;
-    }
+    printf("Callback pointer in PN_LPp: %p\n", callback);
+    printf("Context pointer (ctx_ptr) in PN_LPp: %p\n", ctx_ptr);
 
     #define CHECK_INACTIVE(x,g,inactive,nI,i) \
         for(i=nI=0 ; i<n ; i++) \
@@ -251,6 +248,11 @@ int PN_LPp(double *y,double lambda,double *x,double *info,int n,double p,Workspa
 
     /* Reduction of stepsize if no improvement detected */
     #define NO_IMPROVE_CUT 0.1
+
+    /* If ctx_ptr or callback are NULL, return an error with message "Error: PN_LPp can only be used with valid context pointer and callback."*/
+    if (ctx_ptr == NULL || callback == NULL) {
+        CANCEL("Error: PN_LPp can only be used with valid context pointer and callback.", info)
+    }
 
     /* Compute dual norm q */
     q = 1/(1-1/p);
@@ -980,7 +982,7 @@ int LPp_project(double *y,double lambda,double *x,double *info,int n,double p,Wo
         #endif
 
     /* Invoke Lp prox solver on dual norm */
-    if(!PN_LPp(y,lambda,x,info,n,q,ws,1, STOP_GAP_PNLP, NULL, NULL))
+    if(!PN_LPp(y,lambda,x,info,n,q,ws,1, STOP_GAP_PNLP, ctx_ptr, callback))
         {CANCEL("error in internal Lp prox solver",info)}
 
     /* Apply Moreau's decomposition to recover primal problem solution */
