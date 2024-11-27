@@ -27,6 +27,8 @@
     @param p degree of the TV norm to apply
     @param ws pointer to workspace to use, or null if the method should alloc its own memory
     @param objGapTVp dual gap required by user for the 1D-TVp algorithm
+    @param ctx_ptr pointer to context data to pass to the callback function
+    @param callback callback function to call at each iteration
 */
 int TV(double *y,double lambda,double *x,double *info,int n,double p,Workspace *ws, void* ctx_ptr, int (*callback)(const double* s_ptr, size_t s_length, double delta_k, void* ctx_ptr), double objGapTVp) {
     #define CANCEL(txt,info) \
