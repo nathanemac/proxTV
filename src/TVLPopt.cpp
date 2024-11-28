@@ -1117,10 +1117,6 @@ int GPFW_TVp(double *y,double lambda,double *x,double *info,int n,double p,Works
     Workspace *wsinner=NULL;
     lapack_int one=1,rc,nnp;
 
-    printf("Callback pointer in GPFW_TVp: %p\n", callback);
-    printf("Context pointer (ctx_ptr) in GPFW_TVp: %p\n", ctx_ptr);
-
-
     /* ADDED NOV 15 BY Nathan Allaire - argument objGapTVp in GPFW_TVp to choose dualGap and modify everything accordingly.*/
 
     /* Problem constants */
@@ -1238,7 +1234,7 @@ int GPFW_TVp(double *y,double lambda,double *x,double *info,int n,double p,Works
     PRIMAL2GRAD(x,g,i)
 
     /* initialize output for callback */
-    int callback_result = 0;
+    bool callback_result = false;
 
     /* Start Gradient Projections iterations */
     stop = DBL_MAX; bestdual = DBL_MAX; stuck = 0; cycle = 0;
@@ -1246,7 +1242,7 @@ int GPFW_TVp(double *y,double lambda,double *x,double *info,int n,double p,Works
         - Maximum number of iterations reached.
         - Dual gap small.
         - Dual gap not improving for a number of iterations. */
-    for(iter=1 ; iter < MAX_ITERS_TVLPGPFW && callback_result == 0 && stuck < MAX_NOIMP_TVLP_GPFW ; iter++, cycle++){
+    for(iter=1 ; iter < MAX_ITERS_TVLPGPFW && !callback_result && stuck < MAX_NOIMP_TVLP_GPFW ; iter++, cycle++){
         #ifdef DEBUG
             fprintf(DEBUG_FILE,"(GPFW_TVp) Iter %d, w=[ ",iter);
             for(i=0;i<nn && i<DEBUG_N;i++) fprintf(DEBUG_FILE,"%g ",w[i]);
@@ -1276,10 +1272,8 @@ int GPFW_TVp(double *y,double lambda,double *x,double *info,int n,double p,Works
             #endif
 
             /* Projection onto lp-ball */
-            printf("GPFW_TVp - Before calling PN_LPp:\n");
-            printf("callback = %p, ctx_ptr = %p\n", (void*)callback, ctx_ptr);
             resetWorkspace(wsinner);
-            if(!PN_LPp(aux2,lambda,aux,info,nn,p,wsinner,0,OBJGAP_LPPROX_TVLP, ctx_ptr, callback))
+            if(!PN_LPp(aux2,lambda,aux,info,nn,p,wsinner,0,OBJGAP_LPPROX_TVLP))
                 {CANCEL("error when invoking Lp ball projection subroutine",info)}
             for(i=0;i<nn;i++) aux[i] = aux2[i] - aux[i];
 
