@@ -20,3 +20,8 @@ main
 main.cpp   
 *.o            
 *.DS_Store
+main_pnlp.cpp
+main_pnlp
+main_tv.cpp
+main_tv
+

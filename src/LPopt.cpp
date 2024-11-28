@@ -222,9 +222,6 @@ int PN_LPp(double *y,double lambda,double *x,double *info,int n,double p,Workspa
     int i,j,iters,recomp,found,nI;
     short updateKind;
 
-    printf("Callback pointer in PN_LPp: %p\n", callback);
-    printf("Context pointer (ctx_ptr) in PN_LPp: %p\n", ctx_ptr);
-
     #define CHECK_INACTIVE(x,g,inactive,nI,i) \
         for(i=nI=0 ; i<n ; i++) \
             if( x[i] > epsilon || (x[i] <= epsilon && g[i] < -EPSILON) )  \
@@ -249,16 +246,11 @@ int PN_LPp(double *y,double lambda,double *x,double *info,int n,double p,Workspa
     /* Reduction of stepsize if no improvement detected */
     #define NO_IMPROVE_CUT 0.1
 
-    /* If ctx_ptr or callback are NULL, return an error with message "Error: PN_LPp can only be used with valid context pointer and callback."*/
-    if (ctx_ptr == NULL || callback == NULL) {
-        CANCEL("Error: PN_LPp can only be used with valid context pointer and callback.", info)
-    }
-
     /* Compute dual norm q */
     q = 1/(1-1/p);
 
-    /* initialize output for callback */
-    int callback_result = 0;
+    /* initialize stopping condition */
+    bool stopping_condition = false;
 
 
     /* Special case where the solution is the trivial x = 0 */
@@ -393,7 +385,7 @@ int PN_LPp(double *y,double lambda,double *x,double *info,int n,double p,Workspa
 
     /* Projected Newton loop */
     stop = gap = DBL_MAX; iters = 0;
-    for(iters=0 ; stop > STOP_PNLP && iters < MAX_ITERS_PNLP && callback_result == 0 ; iters++){
+    for(iters=0 ; stop > STOP_PNLP && iters < MAX_ITERS_PNLP && !stopping_condition; iters++){
         #ifdef DEBUG
             fprintf(DEBUG_FILE,"Iter %d, x=[ ",iters);
             for(i=0;i<n && i<DEBUG_N;i++) fprintf(DEBUG_FILE,"%g ",x[i]);
@@ -690,8 +682,13 @@ int PN_LPp(double *y,double lambda,double *x,double *info,int n,double p,Workspa
         gap = PN_LPpGap(x, y, auxv, n, q, lambda, nx);
 
         /* ADDED NOV 26 NATHAN ALLAIRE */
-        /* Call the callback function from Julia */
-        callback_result = callback(x, n, gap, ctx_ptr);
+        /* If callback and ctx_ptr are not defined, switch to regular update on dual gap. Else, call the callback function from Julia */
+        if (callback && ctx_ptr) {
+            stopping_condition = callback(x, n, gap, ctx_ptr);
+        } else {
+            stopping_condition = (gap < objGap);
+        }
+        
 
         #ifdef DEBUG
             fprintf(DEBUG_FILE,"Iter %d, stop=%lg, gap=%lg\n",iters,stop,gap);
@@ -982,7 +979,7 @@ int LPp_project(double *y,double lambda,double *x,double *info,int n,double p,Wo
         #endif
 
     /* Invoke Lp prox solver on dual norm */
-    if(!PN_LPp(y,lambda,x,info,n,q,ws,1, STOP_GAP_PNLP, ctx_ptr, callback))
+    if(!PN_LPp(y,lambda,x,info,n,q,ws,1, STOP_GAP_PNLP))
         {CANCEL("error in internal Lp prox solver",info)}
 
     /* Apply Moreau's decomposition to recover primal problem solution */
