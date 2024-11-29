@@ -684,19 +684,28 @@ int PN_LPp(double *y,double lambda,double *x,double *info,int n,double p,Workspa
         /* ADDED NOV 26 NATHAN ALLAIRE */
         /* If callback and ctx_ptr are not defined, switch to regular update on dual gap. Else, call the callback function from Julia */
         if (callback && ctx_ptr) {
-            if (!positive) {
-                double *x_signed = (double*)malloc(sizeof(double) * n);
-                for (i = 0; i < n; i++) {
-                    x_signed[i] = (signs[i] == -1) ? -x[i] : x[i];
+            double *x_signed = (double*)malloc(sizeof(double) * n);
+
+            /* Copy x into x_signed and adjust almost zero entries */
+            for (i = 0; i < n; i++) {
+                x_signed[i] = x[i];  // Copy the value from x
+                if (fabs(x_signed[i]) <= epsilon) {
+                    x_signed[i] = 0;  // Set near-zero values to exact zero
                 }
-                stopping_condition = callback(x_signed, n, gap, ctx_ptr);
-                free(x_signed);
-            } else {
-                stopping_condition = callback(x, n, gap, ctx_ptr);
             }
+
+            /* Apply signs if input was not all positive */
+            if (!positive) {
+                for (i = 0; i < n; i++) {
+                    x_signed[i] = (signs[i] == -1) ? -x_signed[i] : x_signed[i];
+                }
+            }
+
+            stopping_condition = callback(x_signed, n, gap, ctx_ptr);
+            free(x_signed);
         } else {
             stopping_condition = (gap < objGap);
-        }
+        } /* END OF NOV 26 ADDITION */
 
         
 
