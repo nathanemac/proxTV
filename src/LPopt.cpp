@@ -684,10 +684,20 @@ int PN_LPp(double *y,double lambda,double *x,double *info,int n,double p,Workspa
         /* ADDED NOV 26 NATHAN ALLAIRE */
         /* If callback and ctx_ptr are not defined, switch to regular update on dual gap. Else, call the callback function from Julia */
         if (callback && ctx_ptr) {
-            stopping_condition = callback(x, n, gap, ctx_ptr);
+            if (!positive) {
+                double *x_signed = (double*)malloc(sizeof(double) * n);
+                for (i = 0; i < n; i++) {
+                    x_signed[i] = (signs[i] == -1) ? -x[i] : x[i];
+                }
+                stopping_condition = callback(x_signed, n, gap, ctx_ptr);
+                free(x_signed);
+            } else {
+                stopping_condition = callback(x, n, gap, ctx_ptr);
+            }
         } else {
             stopping_condition = (gap < objGap);
         }
+
         
 
         #ifdef DEBUG
