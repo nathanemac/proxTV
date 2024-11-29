@@ -385,7 +385,7 @@ int PN_LPp(double *y,double lambda,double *x,double *info,int n,double p,Workspa
 
     /* Projected Newton loop */
     stop = gap = DBL_MAX; iters = 0;
-    for(iters=0 ; stop > STOP_PNLP && iters < MAX_ITERS_PNLP && !stopping_condition; iters++){
+    for(iters=0 ;iters < MAX_ITERS_PNLP && !stopping_condition; iters++){ //  stop > STOP_PNLP && 
         #ifdef DEBUG
             fprintf(DEBUG_FILE,"Iter %d, x=[ ",iters);
             for(i=0;i<n && i<DEBUG_N;i++) fprintf(DEBUG_FILE,"%g ",x[i]);
