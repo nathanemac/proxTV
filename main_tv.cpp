@@ -16,7 +16,7 @@ struct Context {
 int simple_callback(const double* s_ptr, size_t s_length, double delta_k, void* ctx_ptr) {
     // Ici, nous ne faisons rien de particulier avec s_ptr, delta_k ou ctx_ptr
     // Nous retournons simplement 0 pour continuer l'algorithme
-    return 0;
+    return 1;
 }
 
 
@@ -25,7 +25,7 @@ int main() {
     int n = 20;          // Taille du tableau
     double lambda = 0.01; // Paramètre lambda
     double p = 1.7;      // Norme p pour TV
-    double objGapTVp = 1e-6; // Précision désirée pour le dual gap
+    double objGapTVp = 1e-1; // Précision désirée pour le dual gap
 
     // Allocation des tableaux pour les données d'entrée et de sortie
     double y[20];      // Signal d'entrée
