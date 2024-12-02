@@ -20,4 +20,5 @@ main
 main.cpp   
 *.o            
 *.DS_Store
+*.dylib
 
