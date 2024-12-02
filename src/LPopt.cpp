@@ -411,6 +411,7 @@ int PN_LPp(double *y,double lambda,double *x,double *info,int n,double p,Workspa
             // Compute gradient
             g[i] = auxv[i] + lambda * xnorm[i];
         }
+        /* displays the gradient components */
 
         #ifdef DEBUG
             fprintf(DEBUG_FILE,"Iter %d, xnorm=[ ",iters);
@@ -502,6 +503,7 @@ int PN_LPp(double *y,double lambda,double *x,double *info,int n,double p,Workspa
                     /* 1./(1+c * xnorm./x) .* xnorm · g */
                     xp1vGrad += auxv[j] * g[j];
                 }
+
 
                 #ifdef DEBUG
                     fprintf(DEBUG_FILE,"Iter %d, dDiag=[ ",iters);
