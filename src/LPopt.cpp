@@ -470,15 +470,26 @@ int PN_LPp(double *y,double lambda,double *x,double *info,int n,double p,Workspa
                 break;
 
             /* Use minimum norm subgradient updating direction */
-            case PNLP_MNSG:
+            case PNLP_MNSG: {
                 /* Compute minimum norm subgradient at x=0 */
                 /* Since the gradient at x=0 is not to be trusted, the inactive constraint detection is ignored */
                 nI = n;
+                double MAX_D = 1e9;
                 for(i=0;i<n;i++){
                     d[i] = - pow(y[i] / lambda, 1 / (p-1));
+
+                    if (isinf(d[i])) {
+                        fprintf(stderr, "Warning: d[%d] is infinite, clipping.\n", i);
+                        d[i] = (d[i] > 0) ? MAX_D : -MAX_D;
+                    } else if (fabs(d[i]) > MAX_D) {
+                        fprintf(stderr, "Warning: d[%d] exceeds maximal clipping value, clipping.\n", i);
+                        d[i] = (d[i] > 0) ? MAX_D : -MAX_D;
+                    }
                     inactive[i] = i;
                 }
                 break;
+            }
+
 
             /* Hessian (Newton) updating direction */
             case PNLP_HESSIAN:
