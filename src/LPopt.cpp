@@ -479,10 +479,8 @@ int PN_LPp(double *y,double lambda,double *x,double *info,int n,double p,Workspa
                     d[i] = - pow(y[i] / lambda, 1 / (p-1));
 
                     if (isinf(d[i])) {
-                        fprintf(stderr, "Warning: d[%d] is infinite, clipping.\n", i);
                         d[i] = (d[i] > 0) ? MAX_D : -MAX_D;
                     } else if (fabs(d[i]) > MAX_D) {
-                        fprintf(stderr, "Warning: d[%d] exceeds maximal clipping value, clipping.\n", i);
                         d[i] = (d[i] > 0) ? MAX_D : -MAX_D;
                     }
                     inactive[i] = i;
