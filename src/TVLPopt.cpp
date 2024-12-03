@@ -1301,7 +1301,7 @@ int GPFW_TVp(double *y,double lambda,double *x,double *info,int n,double p,Works
                 tmp = aux2[i] - aux2[i+1];
                 den += tmp * tmp;
             }
-            den += aux2[nn] * aux2[nn];
+            den += aux2[nn-1] * aux2[nn-1];
             step = num / den;
 
             #ifdef DEBUG
@@ -1375,7 +1375,7 @@ int GPFW_TVp(double *y,double lambda,double *x,double *info,int n,double p,Works
                 tmp = aux2[i] - aux2[i+1];
                 den += tmp * tmp;
             }
-            den += aux2[nn] * aux2[nn];
+            den += aux2[nn-1] * aux2[nn-1];
             step = stop / den;
 
             #ifdef DEBUG
