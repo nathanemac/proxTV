@@ -140,7 +140,7 @@ void freeWorkspace(Workspace *ws){
             free(ws->d);
         }
         if(ws->i){
-            for(i=0;i<ws->ni;i++) if(ws->i[i]) free(ws->i);
+            for(i=0;i<ws->ni;i++) if(ws->i[i]) free(ws->i[i]);
             free(ws->i);
         }
         /* Warm restart fields */

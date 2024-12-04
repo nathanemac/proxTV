@@ -1131,7 +1131,7 @@ int GPFW_TVp(double *y,double lambda,double *x,double *info,int n,double p,Works
         } \
         if (wsinner) { \
             freeWorkspace(wsinner); \
-            wsinner = NULL; \
+        }
 
     #define CANCEL(txt,info) \
         printf("GPFW_TVp: %s\n",txt); \
